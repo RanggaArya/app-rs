@@ -32,6 +32,13 @@
                      <span class="meta-item">
                         <i class="fa fa-calendar"></i> <?php echo date('d M Y', strtotime($row->date_created)); ?>
                      </span>
+                     <span class="text-muted ml-3" title="<?= $artikel_visitors ?> Orang (Unik)">
+                        &nbsp; | &nbsp; <i class="fa fa-user"></i> <?= number_format($artikel_visitors) ?>
+                    </span>
+                    
+                    <span class="text-muted ml-2" title="<?= $artikel_views ?> Kali Dilihat">
+                        &nbsp; <i class="fa fa-eye"></i> <?= number_format($artikel_views) ?>
+                    </span>
                   </div>
                </div>
 

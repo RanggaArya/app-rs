@@ -53,7 +53,7 @@ class Login extends CI_Controller {
 			if($query_result[0]['role'] == 'pelanggan'){
 				redirect(base_url('pelanggan'));
 			}else if($query_result[0]['role'] == 'admin'){
-				redirect(base_url('admin'));
+				redirect(base_url('admin/statistics'));
 			}else{
 				redirect(base_url());
 			}

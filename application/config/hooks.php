@@ -11,3 +11,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |	https://codeigniter.com/user_guide/general/hooks.html
 |
 */
+
+$hook['post_controller_constructor'] = array(
+    'class'    => 'Rec_visitor',
+    'function' => 'record_visit',
+    'filename' => 'Rec_visitor.php',
+    'filepath' => 'libraries'
+);

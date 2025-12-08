@@ -277,24 +277,57 @@
     //   }
     // }
 
+    // public function blog_content_detail($slug)
+    // {
+    //   $query = "SELECT * FROM blog where slug='$slug'";
+    //   $query_result = $this->db->query($query);
+    //   $query_resulat_array = $this->db->query($query)->result();
+    //   if ($query_result->num_rows() > 0) {
+    //     $x['datapost'] = $query_result;
+    //     $x['title_bar'] = $query_resulat_array[0]->title;
+    //     $x['header_page'] = "";
+    //     $x['keyword'] = $query_resulat_array[0]->title;
+    //     $x['description'] = $query_resulat_array[0]->title;
+    //     $this->load->view('frontview/header', $x);
+    //     $this->load->view('frontview/navbar', $x);
+    //     $this->load->view('frontview/page/blog/blogdetail', $x);
+    //     $this->load->view('frontview/footer', $x);
+    //   } else {
+    //     redirect(base_url());
+    //   }
+    // }
+    
     public function blog_content_detail($slug)
     {
-      $query = "SELECT * FROM blog where slug='$slug'";
-      $query_result = $this->db->query($query);
-      $query_resulat_array = $this->db->query($query)->result();
-      if ($query_result->num_rows() > 0) {
-        $x['datapost'] = $query_result;
-        $x['title_bar'] = $query_resulat_array[0]->title;
-        $x['header_page'] = "";
-        $x['keyword'] = $query_resulat_array[0]->title;
-        $x['description'] = $query_resulat_array[0]->title;
-        $this->load->view('frontview/header', $x);
-        $this->load->view('frontview/navbar', $x);
-        $this->load->view('frontview/page/blog/blogdetail', $x);
-        $this->load->view('frontview/footer', $x);
-      } else {
-        redirect(base_url());
-      }
+        // 1. Load Model Visitor
+        $this->load->model('m_visitor');
+
+        // 2. Ambil Statistik Artikel ini berdasarkan Slug
+        $stats = $this->m_visitor->get_article_stats($slug);
+
+        $query = "SELECT * FROM blog where slug='$slug'";
+        $query_result = $this->db->query($query);
+        $query_resulat_array = $this->db->query($query)->result();
+
+        if ($query_result->num_rows() > 0) {
+            $x['datapost'] = $query_result;
+            $x['title_bar'] = $query_resulat_array[0]->title;
+            $x['header_page'] = "";
+            $x['keyword'] = $query_resulat_array[0]->title;
+            $x['description'] = $query_resulat_array[0]->title;
+
+            // 3. Masukkan Data Statistik ke Array $x untuk dikirim ke View
+            // (Menggunakan 0 jika data masih kosong/null)
+            $x['artikel_visitors'] = isset($stats->visitors) ? $stats->visitors : 0; 
+            $x['artikel_views']    = isset($stats->views) ? $stats->views : 0;
+
+            $this->load->view('frontview/header', $x);
+            $this->load->view('frontview/navbar', $x);
+            $this->load->view('frontview/page/blog/blogdetail', $x);
+            $this->load->view('frontview/footer', $x);
+        } else {
+            redirect(base_url());
+        }
     }
 
     public function blog_content_list()

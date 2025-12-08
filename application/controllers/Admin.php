@@ -34,4 +34,44 @@ class Admin extends CI_Controller {
         $this->load->view('backview/footer.php', $data);
       }
 
+        public function statistics() {
+            $this->load->model('m_visitor');
+        
+            // 1. Ambil Filter (Default: Bulan Ini & Tahun Ini)
+            // Jika user memilih 'all', maka nilai variabel akan berisi string 'all'
+            $filter_month = $this->input->get('month') !== null ? $this->input->get('month') : date('m');
+            $filter_year  = $this->input->get('year') !== null ? $this->input->get('year') : date('Y');
+        
+            $data['title_bar'] = "Statistik Web";
+            $data['header_page'] = "Visitor Analytics";
+            
+            // Kirim status filter ke View
+            $data['sel_month'] = $filter_month;
+            $data['sel_year']  = $filter_year;
+        
+            // 2. Label Dinamis untuk Judul Grafik
+            if($filter_year == 'all') {
+                $data['periode_label'] = "Semua Waktu (Tahunan)";
+            } elseif($filter_month == 'all') {
+                $data['periode_label'] = "Tahun " . $filter_year;
+            } else {
+                $data['periode_label'] = date("F", mktime(0, 0, 0, $filter_month, 10)) . " " . $filter_year;
+            }
+        
+            // 3. Ambil Data
+            $data['summary']  = $this->m_visitor->get_summary($filter_month, $filter_year);
+            $data['timeline'] = $this->m_visitor->get_timeline_stats($filter_month, $filter_year); // Data Utama (Grafik & Tabel)
+            
+            $data['stats_hour'] = $this->m_visitor->get_hours_history($filter_month, $filter_year);
+            $data['stats_day']  = $this->m_visitor->get_days_history($filter_month, $filter_year);
+            
+            $data['top_pages']  = $this->m_visitor->get_top_pages_extended($filter_month, $filter_year, 25);
+        
+            // Load View
+            $this->load->view('backview/header.php', $data);
+            $this->load->view('backview/admin/navbar.php', $data);
+            $this->load->view('backview/admin/dashboard/statistik.php', $data);
+            $this->load->view('backview/footer.php', $data);
+        }
+
 }

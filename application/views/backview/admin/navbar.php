@@ -38,6 +38,11 @@
                     </button>
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <ul class="navbar-nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="<?= base_url('admin/statistics') ?>">
+                                    <i class="fa fa-fw fa-chart-bar"></i> <span class="ml-2">Statistik Web</span>
+                                </a>
+                            </li>
                             <li class="nav-item ">
                                 <a class="nav-link" href="<?php echo base_url(); ?>admin" ><i class="fa fa-fw fa-comments"></i>Kelola Blog <span class="badge badge-success">6</span></a>
                             </li>

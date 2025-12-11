@@ -330,12 +330,43 @@
         }
     }
 
+    // public function blog_content_list()
+    // {
+    //   $query = "SELECT * FROM blog order by blog_id DESC";
+    //   $query_result = $this->db->query($query);
+    //   $result = json_encode($query_result->result());
+    //   echo $result;
+    // }
+    
     public function blog_content_list()
     {
-      $query = "SELECT * FROM blog order by blog_id DESC";
-      $query_result = $this->db->query($query);
-      $result = json_encode($query_result->result());
-      echo $result;
+        // Set Header JSON agar browser otomatis mengenali ini sebagai JSON Object
+        header('Content-Type: application/json');
+
+        // 1. Load Model
+        $this->load->model('m_visitor');
+
+        // 2. Ambil data
+        $query = "SELECT * FROM blog order by blog_id DESC";
+        $query_result = $this->db->query($query)->result();
+
+        // 3. Loop & Safety Check
+        foreach ($query_result as $key => $value) {
+            // Ambil stats
+            $stats = $this->m_visitor->get_article_stats($value->slug);
+
+            // Cek data visitor/views
+            if ($stats && is_object($stats)) {
+                $query_result[$key]->visitors = isset($stats->visitors) ? $stats->visitors : 0;
+                $query_result[$key]->views    = isset($stats->views) ? $stats->views : 0;
+            } else {
+                $query_result[$key]->visitors = 0;
+                $query_result[$key]->views    = 0;
+            }
+        }
+
+        // 4. Kirim JSON sekali saja
+        echo json_encode($query_result);
     }
 
     public function blog_content_list_search()
@@ -400,25 +431,56 @@
     }
 
     // 2. Method untuk Related Articles di Blog Detail (random)
+    // public function get_related_articles()
+    // {
+    //   $current_id = $this->input->post('current_id');
+    //   $limit = $this->input->post('limit') ? $this->input->post('limit') : 6;
+
+    //   // Query untuk mengambil artikel lain (exclude artikel yang sedang dibuka)
+    //   // Hanya ambil artikel yang sudah published (type = 1)
+    //   $query = "SELECT blog_id, title, slug, date_created, image_path, content, category 
+    //           FROM blog 
+    //           WHERE blog_id != ? AND type = 1 
+    //           ORDER BY date_created DESC 
+    //           LIMIT ?";
+
+    //   $query_result = $this->db->query($query, array($current_id, (int)$limit));
+    //   $result = json_encode($query_result->result());
+
+    //   // Set header JSON
+    //   header('Content-Type: application/json');
+    //   echo $result;
+    // }
+    
     public function get_related_articles()
     {
-      $current_id = $this->input->post('current_id');
-      $limit = $this->input->post('limit') ? $this->input->post('limit') : 6;
+        $current_id = $this->input->post('current_id');
+        $limit = $this->input->post('limit') ? $this->input->post('limit') : 6;
 
-      // Query untuk mengambil artikel lain (exclude artikel yang sedang dibuka)
-      // Hanya ambil artikel yang sudah published (type = 1)
-      $query = "SELECT blog_id, title, slug, date_created, image_path, content, category 
-              FROM blog 
-              WHERE blog_id != ? AND type = 1 
-              ORDER BY date_created DESC 
-              LIMIT ?";
+        // 1. Load Model Visitor
+        $this->load->model('m_visitor');
 
-      $query_result = $this->db->query($query, array($current_id, (int)$limit));
-      $result = json_encode($query_result->result());
+        // Query artikel lain
+        $query = "SELECT blog_id, title, slug, date_created, image_path, content, category 
+                  FROM blog 
+                  WHERE blog_id != ? AND type = 1 
+                  ORDER BY date_created DESC 
+                  LIMIT ?";
 
-      // Set header JSON
-      header('Content-Type: application/json');
-      echo $result;
+        $query_result = $this->db->query($query, array($current_id, (int)$limit))->result();
+
+        // 2. Loop untuk menyisipkan data statistik
+        foreach ($query_result as $key => $value) {
+            $stats = $this->m_visitor->get_article_stats($value->slug);
+
+            // Cek apakah stats ada, jika tidak set 0
+            $query_result[$key]->visitors = ($stats && isset($stats->visitors)) ? $stats->visitors : 0;
+            $query_result[$key]->views    = ($stats && isset($stats->views)) ? $stats->views : 0;
+        }
+
+        // 3. Kirim sebagai JSON
+        header('Content-Type: application/json');
+        echo json_encode($query_result);
     }
 
     // 3. Method untuk Related Articles (prioritas kategori sama) - RECOMMENDED

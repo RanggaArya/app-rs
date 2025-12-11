@@ -100,6 +100,8 @@
                             <li class="nav-item ">
                                 <a class="nav-link" href="<?php echo base_url(); ?>admin/profil/dokter" ><i class="fa fa-fw fa-ambulance"></i>Kelola Dokter<span class="badge badge-success">6</span></a>
                             </li>
+                                <br> <br>
+
                             <div style="border:0.1px solid #206f44; margin-top:15px; margin-bottom:15px;">
                             </div>
 

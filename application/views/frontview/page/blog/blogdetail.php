@@ -28,7 +28,7 @@
                      <span class="meta-item">
                         <i class="fa fa-user-circle"></i> Admin
                      </span>
-                     <span class="meta-divider">•</span>
+                     <span class="meta-divider">â€¢</span>
                      <span class="meta-item">
                         <i class="fa fa-calendar"></i> <?php echo date('d M Y', strtotime($row->date_created)); ?>
                      </span>
@@ -981,6 +981,32 @@
    .article-content h4 {
       font-size: 1.05rem;
    }
+   
+   .carousel-card-footer {
+        display: flex;
+        justify-content: space-between; /* Kiri dan Kanan mentok */
+        align-items: center;
+        padding-top: 12px;
+        border-top: 1px solid #e9ecef;
+        margin-top: auto;
+        font-size: 0.8rem; /* Ukuran font sedikit dikecilkan agar muat */
+    }
+    
+    .carousel-card-date {
+        color: #95a5a6;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    /* Class baru untuk statistik di carousel */
+    .carousel-card-stats {
+        display: flex;
+        gap: 10px;
+        color: #7f8c8d;
+        font-weight: 600;
+    }
 }
 </style>
 
@@ -1024,12 +1050,10 @@ function loadRelatedArticles() {
    // Ambil ID dan slug artikel saat ini
    foreach ($datapost->result() as $row) {
       $current_id = $row->blog_id ?? 0;
-      $current_slug = $row->slug ?? '';
    }
    ?>
    
    var currentArticleId = <?php echo $current_id; ?>;
-   var currentSlug = "<?php echo $current_slug; ?>";
    
    jQuery.ajax({
       url: "<?php echo base_url(); ?>blog/get_related_articles",
@@ -1046,39 +1070,30 @@ function loadRelatedArticles() {
             for(let i = 0; i < data.length; i++) {
                let article = data[i];
                let articleUrl = "<?php echo base_url(); ?>artikel/" + article.slug;
-               let imageUrl = article.image_path ? 
-                   "<?php echo base_url(); ?>assets/blog/thumb_img/" + article.image_path :
-                   "<?php echo base_url(); ?>assets/blog/thumb_img_default/thumb.png";
+               let thumb = (article.image_path && article.image_path !== "") ? article.image_path : "thumb.png";
+               let imageUrl = "<?php echo base_url(); ?>assets/blog/thumb_img/" + thumb;
                
-               // Buat excerpt dari content
-               let excerpt = '';
-               if (article.content) {
-                  let tempDiv = document.createElement('div');
-                  tempDiv.innerHTML = article.content;
-                  let textContent = tempDiv.textContent || tempDiv.innerText || '';
-                  excerpt = textContent.substring(0, 100).trim() + '...';
-               } else {
-                  excerpt = article.title.substring(0, 80) + '...';
-               }
+               // Buat excerpt
+               let textContent = article.content ? article.content.replace(/<[^>]+>/g, '') : article.title;
+               let excerpt = textContent.substring(0, 85).trim() + '...';
                
                // Format tanggal
                let formattedDate = article.date_created;
                try {
                   let dateObj = new Date(article.date_created);
-                  formattedDate = dateObj.toLocaleDateString('id-ID', {
-                     day: 'numeric',
-                     month: 'short',
-                     year: 'numeric'
-                  });
-               } catch(e) {
-                  formattedDate = article.date_created;
-               }
+                  formattedDate = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+               } catch(e) {}
+
+               // Format Angka Statistik (Ribuan)
+               let v_count = article.visitors ? parseInt(article.visitors).toLocaleString('id-ID') : '0';
+               let view_count = article.views ? parseInt(article.views).toLocaleString('id-ID') : '0';
                    
                html += `
                   <div class="carousel-card">
                      <div class="carousel-card-img">
                         <a href="${articleUrl}">
-                           <img src="${imageUrl}" alt="${article.title}" loading="lazy">
+                           <img src="${imageUrl}" alt="${article.title}" loading="lazy" 
+                                onerror="this.src='<?php echo base_url() ?>assets/blog/thumb_img_default/thumb.png'">
                         </a>
                         <div class="carousel-card-overlay">📖 Artikel</div>
                      </div>
@@ -1087,11 +1102,20 @@ function loadRelatedArticles() {
                            <a href="${articleUrl}">${article.title}</a>
                         </h5>
                         <p class="carousel-card-excerpt">${excerpt}</p>
+                        
                         <div class="carousel-card-footer">
                            <span class="carousel-card-date">
                               <i class="fa fa-calendar"></i> ${formattedDate}
                            </span>
-                           <a href="${articleUrl}" class="carousel-card-link">Baca →</a>
+                           
+                           <div class="carousel-card-stats">
+                               <span title="Visitors">
+                                   <i class="fa fa-user" style="color: #27ae60;"></i> ${v_count}
+                               </span>
+                               <span title="Views">
+                                   <i class="fa fa-eye" style="color: #2980b9;"></i> ${view_count}
+                               </span>
+                           </div>
                         </div>
                      </div>
                   </div>
@@ -1112,19 +1136,9 @@ function loadRelatedArticles() {
                smartSpeed: 800,
                navText: ["<span>‹</span>", "<span>›</span>"],
                responsive: {
-                  0: {
-                     items: 1,
-                     nav: true,
-                     margin: 10
-                  },
-                  576: {
-                     items: 2,
-                     nav: true
-                  },
-                  992: {
-                     items: 3,
-                     nav: true
-                  }
+                  0: { items: 1, nav: true, margin: 10 },
+                  576: { items: 2, nav: true },
+                  992: { items: 3, nav: true }
                }
             });
          } else {

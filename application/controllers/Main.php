@@ -367,18 +367,31 @@ class Main extends CI_Controller
 		$this->load->view('frontview/footer', $data);
 	}
 
-	public function direksi()
-	{
-		$data['title_bar'] = "";
-		$data['header_page'] = "";
-		$query2 = "SELECT * FROM direksi order by id DESC LIMIT 1";
-		$query_result2 = $this->db->query($query2)->result();
-		$data['daftar'] = $query_result2;
-		$this->load->view('frontview/header', $data);
-		$this->load->view('frontview/navbar', $data);
-		$this->load->view('frontview/page/direksi/direksi', $data);
-		$this->load->view('frontview/footer', $data);
-	}
+// 	public function direksi()
+// 	{
+// 		$data['title_bar'] = "";
+// 		$data['header_page'] = "";
+// 		$query2 = "SELECT * FROM direksi order by id ASC";
+// 		$query_result2 = $this->db->query($query2)->result();
+// 		$data['daftar'] = $query_result2;
+// 		$this->load->view('frontview/header', $data);
+// 		$this->load->view('frontview/navbar', $data);
+// 		$this->load->view('frontview/page/direksi/direksi', $data);
+// 		$this->load->view('frontview/footer', $data);
+// 	}
+    public function direksi()
+    {
+        $data['title_bar'] = "Direksi - RSU Mitra Paramedika";
+        $data['header_page'] = "";
+    
+        // Ambil semua data dari tabel 'direksi'
+        $data['direksi'] = $this->db->get('direksi')->result(); 
+    
+        $this->load->view('frontview/header', $data);
+        $this->load->view('frontview/navbar', $data);
+        $this->load->view('frontview/page/direksi/direksi', $data);
+        $this->load->view('frontview/footer', $data);
+    }
 
 	public function fasilitas()
 	{

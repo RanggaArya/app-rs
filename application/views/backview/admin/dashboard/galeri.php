@@ -101,7 +101,14 @@
                                                                     ?>
                                                                 </td>
                                                                 <td><?php echo $list->caption;?></td>
-                                                                <th><a href="<?php echo base_url()?>uploads/delete/<?php echo $list->id; ?>/galeri" class="btn btn-danger btn-xs">Delete</a></th>
+                                                                <th>
+                                                                    <a href="javascript:void(0);" 
+                                                                       data-id="<?php echo $list->id; ?>" 
+                                                                       data-caption="<?php echo $list->caption; ?>" 
+                                                                       data-image="<?php echo base_url('assets/galeri/' . $list->image_name); ?>"
+                                                                       class="btn btn-info btn-xs btn-edit-galeri">Edit</a>
+                                                                    <a href="<?php echo base_url()?>uploads/delete/<?php echo $list->id; ?>/galeri" class="btn btn-danger btn-xs">Delete</a>
+                                                                </th>
                                                             </tr>
                                                         <?php }
                                                     ?>
@@ -166,7 +173,14 @@
                                                                 <td><?php echo $i; ?></td>
                                                                 <td><?php echo $list->link; ?></td>
                                                                 <td><?php echo $list->caption;?></td>
-                                                                <th><a href="<?php echo base_url()?>galeri/delete_youtube/<?php echo $list->id; ?>" class="btn btn-danger btn-xs">Delete</a></th>
+                                                                <th>
+                                                                    <a href="javascript:void(0);" 
+                                                                       data-id="<?php echo $list->id; ?>" 
+                                                                       data-link="<?php echo $list->link; ?>"
+                                                                       data-caption="<?php echo $list->caption; ?>" 
+                                                                       class="btn btn-info btn-xs btn-edit-youtube">Edit</a>
+                                                                    <a href="<?php echo base_url()?>galeri/delete_youtube/<?php echo $list->id; ?>" class="btn btn-danger btn-xs">Delete</a>
+                                                                </th>
                                                             </tr>
                                                         <?php }
                                                     ?>
@@ -177,6 +191,108 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="modal fade" id="modalEditGaleri" tabindex="-1" role="dialog" aria-labelledby="modalEditGaleriLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="modalEditGaleriLabel">Edit Galeri Foto</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <form action="<?php echo base_url('galeri/update_galeri'); ?>" method="POST" enctype="multipart/form-data">
+                                        <div class="modal-body">
+                                            <input type="hidden" name="id" class="id_galeri">
+                                            
+                                            <div class="form-group text-center">
+                                                <label>Foto Saat Ini</label><br>
+                                                <img src="" class="img-fluid img_preview" style="max-height: 150px; border-radius: 5px;">
+                                            </div>
+                        
+                                            <div class="form-group">
+                                                <label>Ganti Foto (Opsional)</label>
+                                                <input type="file" class="form-control" name="berkas">
+                                                <small class="text-muted">Biarkan kosong jika tidak ingin mengganti foto.</small>
+                                            </div>
+                        
+                                            <div class="form-group">
+                                                <label>Caption</label>
+                                                <input type="text" class="form-control caption_galeri" name="caption" required>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-primary">Update</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="modal fade" id="modalEditYoutube" tabindex="-1" role="dialog" aria-labelledby="modalEditYoutubeLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="modalEditYoutubeLabel">Edit Video Youtube</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <form action="<?php echo base_url('galeri/update_youtube'); ?>" method="POST">
+                                        <div class="modal-body">
+                                            <input type="hidden" name="id" class="id_youtube">
+                                            <div class="form-group">
+                                                <label>Link Youtube</label>
+                                                <input type="text" class="form-control link_youtube" name="link" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>Caption</label>
+                                                <input type="text" class="form-control caption_youtube" name="caption" required>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                                            <button type="submit" class="btn btn-primary">Update</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <script src="<?php echo base_url();?>assets/backview/vendor/jquery/jquery-3.3.1.min.js"></script>
+                        <script>
+                            $(document).ready(function(){
+                                // Handle Edit Galeri (Foto)
+                                $('.btn-edit-galeri').on('click', function(){
+                                    const id = $(this).data('id');
+                                    const caption = $(this).data('caption');
+                                    const image = $(this).data('image'); // Ambil url gambar
+                                    
+                                    $('.id_galeri').val(id);
+                                    $('.caption_galeri').val(caption);
+                                    $('.img_preview').attr('src', image); // Set src image preview
+                                    
+                                    $('#modalEditGaleri').modal('show');
+                                });
+                        
+                                // Handle Edit Youtube
+                                $('.btn-edit-youtube').on('click', function(){
+                                    // Ambil data dari atribut tombol
+                                    const id = $(this).data('id');
+                                    const link = $(this).data('link');
+                                    const caption = $(this).data('caption');
+                                    
+                                    // Masukkan data ke dalam modal
+                                    $('.id_youtube').val(id);
+                                    $('.link_youtube').val(link);
+                                    $('.caption_youtube').val(caption);
+                                    
+                                    // Tampilkan modal
+                                    $('#modalEditYoutube').modal('show');
+                                });
+                            });
+                        </script>
                 </div>
                 <!-- ============================================================== -->
                 <!-- footer -->
